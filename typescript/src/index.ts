@@ -69,14 +69,14 @@ function decimalString(value: number): string {
 
 export function roundHalfAwayFromZero(value: number, scale = 1): number {
   if (!Number.isFinite(value)) throw new Error('cannot round nonfinite value');
+  if (!Number.isSafeInteger(scale) || scale <= 0) throw new Error('scale must be a positive safe integer');
   const sign = value < 0 ? -1 : 1;
-  const places = Math.round(Math.log10(scale));
   const [integerPart, fractionPart = ''] = decimalString(value).split('.');
-  const keptFraction = fractionPart.slice(0, places).padEnd(places, '0');
-  const roundDigit = Number(fractionPart[places] || '0');
-  const scaledText = `${integerPart}${keptFraction}`.replace(/^0+(?=\d)/, '') || '0';
-  let scaled = BigInt(scaledText);
-  if (roundDigit >= 5) scaled += 1n;
+  const numerator = BigInt(`${integerPart}${fractionPart}`.replace(/^0+(?=\d)/, '') || '0') * BigInt(scale);
+  const denominator = 10n ** BigInt(fractionPart.length);
+  let scaled = numerator / denominator;
+  if ((numerator % denominator) * 2n >= denominator) scaled += 1n;
+  if (scaled > BigInt(Number.MAX_SAFE_INTEGER)) throw new Error('rounded result exceeds safe integer range');
   const rounded = Number(scaled);
   return rounded === 0 ? 0 : sign * rounded;
 }

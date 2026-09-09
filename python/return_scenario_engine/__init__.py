@@ -44,9 +44,14 @@ def normalize_zero(value: float) -> float:
 def round_half_away_from_zero(value: float, scale: int = 1) -> int:
     if not math.isfinite(value):
         raise ValueError("cannot round nonfinite value")
+    if isinstance(scale, bool) or not isinstance(scale, int) or scale <= 0 or scale > 9_007_199_254_740_991:
+        raise ValueError("scale must be a positive safe integer")
     sign = -1 if value < 0 else 1
     rounded = (Decimal(str(abs(value))) * Decimal(scale)).to_integral_value(rounding=ROUND_HALF_UP)
-    return sign * int(rounded)
+    result = int(rounded)
+    if result > 9_007_199_254_740_991:
+        raise ValueError("rounded result exceeds safe integer range")
+    return sign * result
 
 
 def display_cents(usd_value: float) -> int:

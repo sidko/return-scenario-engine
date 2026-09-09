@@ -78,6 +78,16 @@ test('scalar anchors retain display rounding, leap-day, and correlation semantic
   equalContract(pearsonCorrelation([1, 1, 1], [2, 3, 4]), correlation.zeroVariance);
 });
 
+test('rounding accepts every positive safe integer scale consistently', () => {
+  for (const [value, scale, expected] of [[1.25, 2, 3], [1.25, 3, 4]]) {
+    assert.equal(roundHalfAwayFromZero(value, scale), expected);
+    assert.equal(runPython({ operation: 'scalar', name: 'round_half_away_from_zero', input: { value, scale } }), expected);
+  }
+  for (const scale of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+    assert.throws(() => roundHalfAwayFromZero(1.25, scale), /scale must be a positive safe integer/);
+  }
+});
+
 test('golden comparator detects a deliberate displayed-money mutation', () => {
   const current = fixture.scenarioCases.find((item) => item.id === 'crypto_crypto_long_window');
   assert.ok(current?.expected.status === 'ok');

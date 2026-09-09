@@ -26,6 +26,9 @@ console.log(result.status); // "ok"
 
 Each artifact provides its key, schema/methodology versions, series basis, annualization factor, ordered civil dates, and positive normalized index values. Results contain snapped dates, integer-cent ending values, display-rounded metrics, drawdown/recovery data, correlation, and a shared wealth path; invalid inputs return named errors.
 
+`roundHalfAwayFromZero` / `round_half_away_from_zero` accept any positive safe
+integer scale and reject nonfinite values, invalid scales, and unsafe results.
+
 The visual is actual output from the synthetic `crypto_crypto_long_window` golden case: a $1,000 scenario ends at $2,309.81 for asset A and $845.66 for asset B. This is a headless library, not a chart UI.
 
 ## Contract and limits

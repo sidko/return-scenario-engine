@@ -10,7 +10,7 @@ elif payload["operation"] == "scalar":
     if operation == "display_cents": result = display_cents(payload["input"])
     elif operation == "display_basis_points": result = display_basis_points(payload["input"])
     elif operation == "display_hundredths": result = display_hundredths(payload["input"])
-    elif operation == "round_half_away_from_zero": result = round_half_away_from_zero(payload["input"])
+    elif operation == "round_half_away_from_zero": result = round_half_away_from_zero(payload["input"]["value"], payload["input"].get("scale", 1))
     elif operation == "first_anniversary": result = first_anniversary(payload["input"])
     elif operation == "pearson_correlation": result = pearson_correlation(*payload["input"])
     else: raise ValueError(f"unknown scalar operation: {operation}")
