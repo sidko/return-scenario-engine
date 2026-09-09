@@ -1,8 +1,18 @@
 name: Publish paired artifacts
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing signed-off tag in the form v<version>.
+        required: true
+        type: string
+      target:
+        description: Registry side to publish or retry.
+        required: true
+        default: both
+        type: choice
+        options: [both, npm, pypi]
 
 permissions:
   contents: read
@@ -14,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.release_tag }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.22.2
@@ -22,7 +32,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: |
-          test "${{ github.event.release.tag_name }}" = "v$(node -p 'require("./package.json").version')"
+          test "${{ inputs.release_tag }}" = "v$(node -p 'require("./package.json").version')"
           test "$(node -p 'require("./package.json").version')" = "$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
           python -m pip install build
           npm ci
@@ -30,6 +40,7 @@ jobs:
           python -m build python
   npm:
     needs: verify
+    if: inputs.target == 'both' || inputs.target == 'npm'
     runs-on: ubuntu-24.04
     environment: npm
     steps:
@@ -42,6 +53,7 @@ jobs:
       - run: npm publish --access public --provenance
   pypi:
     needs: verify
+    if: inputs.target == 'both' || inputs.target == 'pypi'
     runs-on: ubuntu-24.04
     environment: pypi
     permissions:
@@ -53,4 +65,4 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install build
       - run: python -m build python
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2

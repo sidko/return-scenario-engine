@@ -36,13 +36,13 @@ python -m build python
 
 ## First release
 
-For the first npm release, disable the release workflow, publish the reviewed
-tarball interactively with 2FA, configure npm trusted publishing for
-`.github/workflows/release.yml` and its `npm` environment, create the matching
-GitHub Release while the workflow is disabled, then re-enable it for later
-releases. Configure PyPI's pending trusted publisher before its first upload.
-For later paired releases, verify both registries report the intended immutable
-version and artifact before retrying a failed side; never republish an existing
+For the first npm release, publish the reviewed tarball interactively with 2FA
+and configure npm trusted publishing for `.github/workflows/release.yml` and
+its `npm` environment. Configure PyPI's pending trusted publisher, then run the
+manual release workflow against the existing tag with target `pypi` to upload
+the matching Python artifact. Verify both registries before creating the GitHub
+Release. Later releases use the same manual workflow with target `both`; retry a
+single failed side with `npm` or `pypi`. Never republish an immutable existing
 version or treat a mismatched pair as successful.
 
 ## Origin
