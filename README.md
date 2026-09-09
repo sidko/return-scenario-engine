@@ -12,7 +12,16 @@ npm install return-scenario-engine
 ```ts
 import { calculateScenario } from 'return-scenario-engine';
 
-const result = calculateScenario({ amountCents, requestedStart, requestedEnd, assetA, assetB });
+const dates = ['2024-01-01', '2024-01-02', '2024-01-03'];
+const result = calculateScenario({
+  amountCents: 100_000,
+  requestedStart: '2024-01-01',
+  requestedEnd: '2024-01-03',
+  assetA: { assetKey: 'sample-a', schemaVersion: 1, methodologyVersion: 'return-scenario-v1.0.0', seriesBasis: 'close_index', annualizationFactor: 365, dates, growthIndex: [100, 110, 121] },
+  assetB: { assetKey: 'sample-b', schemaVersion: 1, methodologyVersion: 'return-scenario-v1.0.0', seriesBasis: 'close_index', annualizationFactor: 365, dates, growthIndex: [100, 95, 100] },
+});
+
+console.log(result.status); // "ok"
 ```
 
 Each artifact provides its key, schema/methodology versions, series basis, annualization factor, ordered civil dates, and positive normalized index values. Results contain snapped dates, integer-cent ending values, display-rounded metrics, drawdown/recovery data, correlation, and a shared wealth path; invalid inputs return named errors.
@@ -27,8 +36,8 @@ Node.js 20+ and Python 3.11+ are supported. Both `0.1.0` artifacts share the met
 
 ```bash
 npm ci
-PYTHON_BIN=python3 npm test
 python -m pip install -e './python[test]'
+PYTHON_BIN=python3 npm test
 python -m build python
 ```
 
@@ -52,3 +61,5 @@ This package was extracted from [Gale Finance](https://gale.finance/) calculatio
 Early commits reconstruct private-monorepo milestones. Author dates reflect original work; public content and hashes were rewritten to exclude private details. Some early development used Claude as a coding assistant; Sid Kalla selected, reviewed, and maintains this code.
 
 Apache-2.0 covers this code and does not grant rights to Gale Finance branding. See [CONTRIBUTING](https://github.com/sidko/return-scenario-engine/blob/main/CONTRIBUTING.md), [SECURITY](https://github.com/sidko/return-scenario-engine/blob/main/SECURITY.md), and [AGENT_INTEGRATION](https://github.com/sidko/return-scenario-engine/blob/main/AGENT_INTEGRATION.md).
+
+Maintenance is best effort; the latest release is supported unless its notes say otherwise.
