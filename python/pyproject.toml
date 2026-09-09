@@ -5,7 +5,13 @@ requires-python = ">=3.11"
 description = "Portable historical return scenario calculations"
 readme = "README.md"
 license = {file = "LICENSE"}
+authors = [{name = "Sid Kalla"}]
 classifiers = ["Programming Language :: Python :: 3", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12"]
+
+[project.urls]
+Homepage = "https://github.com/sidko/return-scenario-engine"
+Repository = "https://github.com/sidko/return-scenario-engine"
+Issues = "https://github.com/sidko/return-scenario-engine/issues"
 
 [project.optional-dependencies]
 test = ["build>=1.2"]
