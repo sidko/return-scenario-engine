@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "methodologyVersion": "return-scenario-v1.0.0",
+  "constants": {
+    "amountCentsMin": 100,
+    "amountCentsMax": 1000000000,
+    "cagrDayCount": 365.25,
+    "calmarMinAbsDrawdown": 0.0001,
+    "defaultAnnualizationFactor": 252
+  },
+  "dateAlignment": {
+    "civilDatePattern": "YYYY-MM-DD",
+    "timezone": "utc_civil_day_ordinals",
+    "startSnap": "first_shared_on_or_after_request",
+    "endSnap": "last_shared_on_or_before_request",
+    "sharedMetrics": "shared_observation_dates_only",
+    "nativeMetrics": "per_asset_native_observations_between_shared_effective_boundaries"
+  },
+  "formulas": {
+    "totalReturn": "index_end/index_start-1",
+    "endingValueUsd": "amount_usd*index_end/index_start",
+    "cagr": "pow(index_end/index_start,365.25/elapsed_calendar_days)-1",
+    "realizedVolatility": "sample_stddev_native_simple_returns_ddof_1*sqrt(annualization_factor)",
+    "drawdown": "index_t/running_max(index_0_to_t)-1",
+    "calmar": "cagr/abs(max_drawdown)",
+    "correlation": "pearson_aligned_shared_simple_returns_ordered_centered_sums"
+  },
+  "minimumEvidence": {
+    "totalReturnSharedPrices": 2,
+    "cagrElapsedCalendarDays": 30,
+    "volatilityNativeReturns": 30,
+    "drawdownNativePrices": 2,
+    "correlationSharedReturns": 30,
+    "calmarFirstAnniversaryRequired": true
+  },
+  "rounding": {
+    "money": "integer_cents_half_away_from_zero",
+    "percent": "integer_basis_points_half_away_from_zero",
+    "ratio": "integer_hundredths_half_away_from_zero",
+    "negativeZero": "normalize_to_positive_zero"
+  }
+}

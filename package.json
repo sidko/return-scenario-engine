@@ -1,0 +1,13 @@
+{
+  "name": "return-scenario-engine",
+  "version": "0.1.0",
+  "description": "Portable historical return scenario calculations for normalized indexes.",
+  "type": "module",
+  "exports": { ".": { "types": "./lib/index.d.ts", "import": "./lib/index.js" } },
+  "types": "./lib/index.d.ts",
+  "files": ["lib", "methodology", "LICENSE", "NOTICE", "README.md"],
+  "engines": { "node": ">=20" },
+  "scripts": { "build": "tsc --project tsconfig.json", "test": "npm run build && bash test/run-conformance.sh", "prepack": "npm run build" },
+  "license": "Apache-2.0",
+  "devDependencies": { "@types/node": "24.3.1", "typescript": "5.9.3" }
+}
