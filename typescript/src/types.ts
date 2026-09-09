@@ -1,19 +1,115 @@
-export type MetricReason = 'insufficient_data' | 'period_too_short' | 'zero_drawdown' | 'zero_variance' | 'nonfinite_result';
-export type ScenarioErrorReason = 'same_asset' | 'invalid_amount' | 'invalid_date' | 'start_after_end' | 'methodology_mismatch' | 'no_overlap' | 'insufficient_shared_observations';
+export type MetricReason =
+  | 'insufficient_data'
+  | 'period_too_short'
+  | 'zero_drawdown'
+  | 'zero_variance'
+  | 'nonfinite_result';
+
+export type ScenarioErrorReason =
+  | 'same_asset'
+  | 'invalid_amount'
+  | 'invalid_date'
+  | 'start_after_end'
+  | 'methodology_mismatch'
+  | 'no_overlap'
+  | 'insufficient_shared_observations';
+
 export type SnapStatus = 'exact' | 'forward' | 'backward';
 export type ComparisonWinner = 'asset_a' | 'asset_b' | 'tie' | 'unavailable';
 export type PeriodOutcome = 'gain' | 'loss' | 'unchanged';
 export type RecoveryStatus = 'recovered' | 'not_recovered' | 'not_applicable';
-export type MetricValue = { available: true; value: number } | { available: false; reason: MetricReason };
-export type BasisPointMetricValue = { available: true; value: number; displayBasisPoints: number } | { available: false; reason: MetricReason };
-export type HundredthsMetricValue = { available: true; value: number; displayHundredths: number } | { available: false; reason: MetricReason };
+
+export type MetricValue =
+  | { available: true; value: number }
+  | { available: false; reason: MetricReason };
+
+export type BasisPointMetricValue =
+  | { available: true; value: number; displayBasisPoints: number }
+  | { available: false; reason: MetricReason };
+
+export type HundredthsMetricValue =
+  | { available: true; value: number; displayHundredths: number }
+  | { available: false; reason: MetricReason };
+
 /** Caller-owned normalized index data; it intentionally has no provider or product metadata. */
-export type AssetSeriesArtifact = Readonly<{ assetKey: string; schemaVersion: 1; methodologyVersion: 'return-scenario-v1.0.0'; seriesBasis: 'close_index' | 'adjusted_close_index'; annualizationFactor: number; dates: readonly string[]; growthIndex: readonly number[] }>;
-export type ScenarioInput = Readonly<{ assetA: AssetSeriesArtifact; assetB: AssetSeriesArtifact; amountCents: number; requestedStart: string; requestedEnd: string }>;
-export type DrawdownResult = Readonly<{ maxDrawdown: BasisPointMetricValue; peakDate: string | null; troughDate: string | null; recoveryDate: string | null; recoveryDays: number | null; recoveryStatus: RecoveryStatus }>;
-export type AssetScenarioMetrics = Readonly<{ endingValueUsd: number; endingValueCents: number; profitLossUsd: number; profitLossCents: number; totalReturn: BasisPointMetricValue; cagr: BasisPointMetricValue; volatility: BasisPointMetricValue; drawdown: DrawdownResult; calmar: HundredthsMetricValue; nativeObservationCount: number; nativeReturnCount: number; periodOutcome: PeriodOutcome }>;
-export type WealthPathPoint = Readonly<{ date: string; assetAUsd: number; assetBUsd: number }>;
-export type PairMetrics = Readonly<{ correlation: HundredthsMetricValue; sharedReturnCount: number }>;
-export type ScenarioSuccess = Readonly<{ methodologyVersion: 'return-scenario-v1.0.0'; methodologyContractHash: string; amountCents: number; requestedStart: string; requestedEnd: string; effectiveStart: string; effectiveEnd: string; startSnap: 'exact' | 'forward'; endSnap: 'exact' | 'backward'; elapsedDays: number; sharedObservationCount: number; assetA: AssetScenarioMetrics; assetB: AssetScenarioMetrics; pair: PairMetrics; wealthPath: readonly WealthPathPoint[]; endingValueWinner: ComparisonWinner; totalReturnWinner: ComparisonWinner; deeperDrawdownAsset: ComparisonWinner }>;
-export type ScenarioResult = { status: 'error'; reason: ScenarioErrorReason } | { status: 'ok'; scenario: ScenarioSuccess };
-export type AmountParseResult = { ok: true; cents: number } | { ok: false; reason: 'invalid_amount' };
+export type AssetSeriesArtifact = Readonly<{
+  assetKey: string;
+  schemaVersion: 1;
+  methodologyVersion: 'return-scenario-v1.0.0';
+  seriesBasis: 'close_index' | 'adjusted_close_index';
+  annualizationFactor: number;
+  dates: readonly string[];
+  growthIndex: readonly number[];
+}>;
+
+export type ScenarioInput = Readonly<{
+  assetA: AssetSeriesArtifact;
+  assetB: AssetSeriesArtifact;
+  amountCents: number;
+  requestedStart: string;
+  requestedEnd: string;
+}>;
+
+export type DrawdownResult = Readonly<{
+  maxDrawdown: BasisPointMetricValue;
+  peakDate: string | null;
+  troughDate: string | null;
+  recoveryDate: string | null;
+  recoveryDays: number | null;
+  recoveryStatus: RecoveryStatus;
+}>;
+
+export type AssetScenarioMetrics = Readonly<{
+  endingValueUsd: number;
+  endingValueCents: number;
+  profitLossUsd: number;
+  profitLossCents: number;
+  totalReturn: BasisPointMetricValue;
+  cagr: BasisPointMetricValue;
+  volatility: BasisPointMetricValue;
+  drawdown: DrawdownResult;
+  calmar: HundredthsMetricValue;
+  nativeObservationCount: number;
+  nativeReturnCount: number;
+  periodOutcome: PeriodOutcome;
+}>;
+
+export type WealthPathPoint = Readonly<{
+  date: string;
+  assetAUsd: number;
+  assetBUsd: number;
+}>;
+
+export type PairMetrics = Readonly<{
+  correlation: HundredthsMetricValue;
+  sharedReturnCount: number;
+}>;
+
+export type ScenarioSuccess = Readonly<{
+  methodologyVersion: 'return-scenario-v1.0.0';
+  methodologyContractHash: string;
+  amountCents: number;
+  requestedStart: string;
+  requestedEnd: string;
+  effectiveStart: string;
+  effectiveEnd: string;
+  startSnap: 'exact' | 'forward';
+  endSnap: 'exact' | 'backward';
+  elapsedDays: number;
+  sharedObservationCount: number;
+  assetA: AssetScenarioMetrics;
+  assetB: AssetScenarioMetrics;
+  pair: PairMetrics;
+  wealthPath: readonly WealthPathPoint[];
+  endingValueWinner: ComparisonWinner;
+  totalReturnWinner: ComparisonWinner;
+  deeperDrawdownAsset: ComparisonWinner;
+}>;
+
+export type ScenarioResult =
+  | { status: 'error'; reason: ScenarioErrorReason }
+  | { status: 'ok'; scenario: ScenarioSuccess };
+
+export type AmountParseResult =
+  | { ok: true; cents: number }
+  | { ok: false; reason: 'invalid_amount' };

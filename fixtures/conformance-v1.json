@@ -1,8 +1,0 @@
-{
-  "fixtureSetVersion": "return-scenario-engine-conformance-v1",
-  "provenance": {"source": "hand-authored synthetic normalized-index rules", "providerHistoryIncluded": false},
-  "cases": [
-    {"id": "long-snapped-drawdown", "start": "2024-01-01", "days": 45, "requestedStart": "2023-12-31", "requestedEnd": "2024-02-20", "amountCents": 100025, "returnsA": [0.012, -0.018, 0.009, 0.004, -0.006], "returnsB": [0.004, 0.006, -0.002, 0.008, 0.001], "expected": {"effectiveStart": "2024-01-01", "effectiveEnd": "2024-02-14", "startSnap": "forward", "endSnap": "backward", "sharedObservationCount": 45, "sharedReturnCount": 44, "assetADrawdownStatus": "recovered", "assetBCalmarAvailable": false}},
-    {"id": "short-window", "start": "2026-01-01", "days": 12, "requestedStart": "2026-01-01", "requestedEnd": "2026-01-12", "amountCents": 10000, "returnsA": [0.01, 0.01], "returnsB": [-0.004, 0.002], "expected": {"effectiveStart": "2026-01-01", "effectiveEnd": "2026-01-12", "startSnap": "exact", "endSnap": "exact", "sharedObservationCount": 12, "sharedReturnCount": 11, "assetADrawdownStatus": "not_applicable", "assetBCalmarAvailable": false}}
-  ]
-}

@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
-import { calculateScenario, displayBasisPoints, displayCents, displayHundredths, firstAnniversary, parseAmountToCents, pearsonCorrelation, roundHalfAwayFromZero } from '../lib/index.js';
+import { ARTIFACT_SCHEMA_VERSION, METHODOLOGY_HASH, METHODOLOGY_VERSION, calculateScenario, displayBasisPoints, displayCents, displayHundredths, firstAnniversary, parseAmountToCents, pearsonCorrelation, roundHalfAwayFromZero } from '../lib/index.js';
 
 const fixture = JSON.parse(readFileSync(new URL('../fixtures/golden-v1.json', import.meta.url)));
 const python = process.env.PYTHON ?? 'python3';
@@ -44,6 +45,19 @@ test('full sanitized synthetic golden corpus conforms in TypeScript and Python',
     equalContract(parseAmountToCents(current.input), current.expected, `parser:${String(current.input)}`);
     equalContract(runPython({ operation: 'amount', input: current.input }), current.expected, `python parser:${String(current.input)}`);
   }
+});
+
+test('canonical methodology bytes, constants, and golden fixture share one hash', () => {
+  const tsMethodology = readFileSync(new URL('../methodology/return-scenario-v1.json', import.meta.url));
+  const pythonMethodology = readFileSync(new URL('../python/return_scenario_engine/methodology/return-scenario-v1.json', import.meta.url));
+  const hash = createHash('sha256').update(tsMethodology).digest('hex');
+  assert.deepEqual(pythonMethodology, tsMethodology);
+  assert.equal(hash, METHODOLOGY_HASH);
+  assert.equal(fixture.methodologyContractHash, hash);
+  assert.equal(fixture.methodologyVersion, METHODOLOGY_VERSION);
+  assert.equal(JSON.parse(tsMethodology).schemaVersion, ARTIFACT_SCHEMA_VERSION);
+  const pythonSource = readFileSync(new URL('../python/return_scenario_engine/__init__.py', import.meta.url), 'utf8');
+  assert.match(pythonSource, new RegExp(`METHODOLOGY_HASH = "${hash}"`));
 });
 
 test('scalar anchors retain display rounding, leap-day, and correlation semantics', () => {
