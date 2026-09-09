@@ -34,6 +34,17 @@ python -m build python
 
 `npm test` builds a temporary Python wheel and checks every golden scenario against both implementations. Fixtures are synthetic and contain no provider history.
 
+## First release
+
+For the first npm release, disable the release workflow, publish the reviewed
+tarball interactively with 2FA, configure npm trusted publishing for
+`.github/workflows/release.yml` and its `npm` environment, create the matching
+GitHub Release while the workflow is disabled, then re-enable it for later
+releases. Configure PyPI's pending trusted publisher before its first upload.
+For later paired releases, verify both registries report the intended immutable
+version and artifact before retrying a failed side; never republish an existing
+version or treat a mismatched pair as successful.
+
 ## Origin
 
 This package was extracted from [Gale Finance](https://gale.finance/) calculation work. Gale’s launch-bundle formats, UI, routes, analytics, market data, and asset policy stay private. Until migration, it is “extracted from Gale,” not evidence that Gale uses the published artifact.
