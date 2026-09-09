@@ -21,10 +21,10 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ inputs.release_tag }}
         with:
           ref: ${{ inputs.release_tag }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -34,8 +34,11 @@ jobs:
         with:
           python-version: '3.12'
       - run: |
-          test "${{ inputs.release_tag }}" = "v$(node -p 'require("./package.json").version')"
-          test "$(node -p 'require("./package.json").version')" = "$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
+          set -euo pipefail
+          package_version="$(node -p 'require("./package.json").version')"
+          python_version="$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
+          test "$RELEASE_TAG" = "v$package_version"
+          test "$package_version" = "$python_version"
           python -m pip install build
           npm ci
           PYTHON_BIN=python npm test
@@ -45,20 +48,29 @@ jobs:
     if: inputs.target == 'both' || inputs.target == 'npm'
     runs-on: ubuntu-24.04
     environment: npm
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.release_tag }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.22.2
           registry-url: https://registry.npmjs.org
       - run: npm install --global npm@11.19.1
-      - run: test "${{ inputs.release_tag }}" = "v$(node -p 'require(\"./package.json\").version')"
+      - run: |
+          set -euo pipefail
+          package_version="$(node -p 'require("./package.json").version')"
+          test "$RELEASE_TAG" = "v$package_version"
       - run: npm publish --access public --provenance
   pypi:
     needs: verify
     if: inputs.target == 'both' || inputs.target == 'pypi'
     runs-on: ubuntu-24.04
     environment: pypi
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag }}
     permissions:
       id-token: write
     steps:
@@ -69,6 +81,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install build
-      - run: test "${{ inputs.release_tag }}" = "v$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
+      - run: |
+          set -euo pipefail
+          python_version="$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
+          test "$RELEASE_TAG" = "v$python_version"
       - run: python -m build python
       - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
