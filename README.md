@@ -9,7 +9,7 @@ The library is headless: Gale owns the calculator's UI, routes, asset policy,
 market-data handling, and analytics. The reproducible sample below is a small
 financial quick start, not a representation of Gale's production data.
 
-![Gale Finance Compare Lab: a $1,000 BTC versus gold result](https://raw.githubusercontent.com/sidko/return-scenario-engine/main/docs/assets/gale-compare-lab.png)
+![Gale Finance Compare Lab: a $1,000 BTC versus gold result](https://raw.githubusercontent.com/sidko/return-scenario-engine/main/docs/assets/gale-compare-lab.jpg)
 
 Captured September 10, 2026: a public $1,000 BTC versus gold calculation for
 September 9, 2025 through September 9, 2026. The result cards show $698.77 and
