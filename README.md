@@ -1,8 +1,15 @@
 # return-scenario-engine
 
-Dependency-free historical investment scenarios for caller-owned normalized index series. TypeScript and Python share a public contract and synthetic golden corpus.
+Dependency-free historical investment scenarios for caller-owned normalized index
+series. [Gale Finance Compare Lab](https://www.gale.finance/calculator/) uses
+`return-scenario-engine@0.1.0` for its historical calculations. TypeScript and
+Python share a public contract and synthetic golden corpus.
 
-![Synthetic scenario result](https://raw.githubusercontent.com/sidko/return-scenario-engine/main/docs/assets/synthetic-scenario.svg)
+The library is headless: Gale owns the calculator's UI, routes, asset policy,
+market-data handling, and analytics. The reproducible sample below is a small
+financial quick start, not a representation of Gale's production data.
+
+![Reproducible synthetic financial scenario result](https://raw.githubusercontent.com/sidko/return-scenario-engine/main/docs/assets/synthetic-scenario.svg)
 
 ```bash
 npm install return-scenario-engine
@@ -29,7 +36,7 @@ Each artifact provides its key, schema/methodology versions, series basis, annua
 `roundHalfAwayFromZero` / `round_half_away_from_zero` accept any positive safe
 integer scale and reject nonfinite values, invalid scales, and unsafe results.
 
-The visual is actual output from the synthetic `crypto_crypto_long_window` golden case: a $1,000 scenario ends at $2,309.81 for asset A and $845.66 for asset B. This is a headless library, not a chart UI.
+The visual is actual output from the synthetic `crypto_crypto_long_window` golden case: a $1,000 scenario ends at $2,309.81 for asset A and $845.66 for asset B. It is a reproducible fixture, not a chart UI or a claim about Gale's production data.
 
 ## Contract and limits
 
