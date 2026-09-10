@@ -5,16 +5,12 @@ series. [Gale Finance Compare Lab](https://www.gale.finance/calculator/) uses
 `return-scenario-engine@0.1.0` for its historical calculations. TypeScript and
 Python share a public contract and synthetic golden corpus.
 
-The library is headless: Gale owns the calculator's UI, routes, asset policy,
-market-data handling, and analytics. The reproducible sample below is a small
-financial quick start, not a representation of Gale's production data.
-
 ![Gale Finance Compare Lab: a $1,000 BTC versus gold result](https://raw.githubusercontent.com/sidko/return-scenario-engine/main/docs/assets/gale-compare-lab.jpg)
 
 Captured September 10, 2026: a public $1,000 BTC versus gold calculation for
 September 9, 2025 through September 9, 2026. The result cards show $698.77 and
 $1,213.96. The [reproducible public scenario](https://www.gale.finance/calculator/#cl=v1&a=btc&b=xau&c=100000&s=2025-09-09&e=2026-09-09)
-is Gale UI; this headless library performs the historical calculations behind it.
+uses Gale Compare Lab, powered by this library's historical calculations.
 
 ```bash
 npm install return-scenario-engine
@@ -43,10 +39,8 @@ integer scale and reject nonfinite values, invalid scales, and unsafe results.
 
 ![Reproducible synthetic financial scenario result](https://raw.githubusercontent.com/sidko/return-scenario-engine/main/docs/assets/synthetic-scenario.svg)
 
-This optional visual is actual output from the synthetic
-`crypto_crypto_long_window` golden case: a $1,000 scenario ends at $2,309.81 for
-asset A and $845.66 for asset B. It is a reproducible fixture, not a chart UI or
-a claim about Gale's production data.
+Output from the reproducible synthetic `crypto_crypto_long_window` fixture: a
+$1,000 scenario ends at $2,309.81 for asset A and $845.66 for asset B.
 
 ## Contract and limits
 
