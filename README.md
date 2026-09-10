@@ -3,7 +3,8 @@
 Dependency-free historical investment scenarios for caller-owned normalized index
 series. [Gale Finance Compare Lab](https://www.gale.finance/calculator/) uses
 `return-scenario-engine@0.1.0` for its historical calculations. TypeScript and
-Python share a public contract and synthetic golden corpus.
+Python use the same calculation rules and are tested against the same scenarios
+and expected results.
 
 ![Gale Finance Compare Lab: a $1,000 BTC versus gold result](https://raw.githubusercontent.com/sidko/return-scenario-engine/main/docs/assets/gale-compare-lab.jpg)
 
