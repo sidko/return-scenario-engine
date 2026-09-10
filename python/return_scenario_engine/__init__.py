@@ -113,15 +113,26 @@ def parse_usd_amount_to_cents(value: str) -> dict[str, Any]:
 parse_amount_to_cents = parse_usd_amount_to_cents
 
 
+def ordered_sum(values: list[float]) -> float:
+    """Accumulate in input order to match the JavaScript implementation."""
+    total = 0.0
+    for value in values:
+        total += value
+    return total
+
+
 def ordered_mean(values: list[float]) -> float:
-    return sum(values) / len(values)
+    return ordered_sum(values) / len(values)
 
 
 def sample_variance(values: list[float]) -> float | None:
     if len(values) < 2:
         return None
     mean = ordered_mean(values)
-    return sum((value - mean) ** 2 for value in values) / (len(values) - 1)
+    squared_deviation_sum = 0.0
+    for value in values:
+        squared_deviation_sum += (value - mean) ** 2
+    return squared_deviation_sum / (len(values) - 1)
 
 
 def sample_stddev(values: list[float]) -> float | None:
