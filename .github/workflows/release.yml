@@ -1,92 +1,91 @@
 name: Publish paired artifacts
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: Existing signed-off tag in the form v<version>.
-        required: true
-        type: string
-      target:
-        description: Registry side to publish or retry.
-        required: true
-        default: both
-        type: choice
-        options: [both, npm, pypi]
+  push:
+    tags: ["v*"]
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   verify:
     runs-on: ubuntu-24.04
     env:
-      RELEASE_TAG: ${{ inputs.release_tag }}
+      RELEASE_TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.release_tag }}
+          ref: ${{ github.sha }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 22.22.2
+        with: {node-version: 22.22.2, cache: npm}
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: '3.12'
+        with: {python-version: '3.12'}
       - run: |
           set -euo pipefail
-          package_version="$(node -p 'require("./package.json").version')"
-          python_version="$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
-          test "$RELEASE_TAG" = "v$package_version"
-          test "$package_version" = "$python_version"
+          test "$RELEASE_TAG" = "v$(node -p 'require("./package.json").version')"
+          test "$(node -p 'require("./package.json").version')" = "$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
           python -m pip install build setuptools
           npm ci
           PYTHON_BIN=python npm test
-          python -m build python
   npm:
     needs: verify
-    if: inputs.target == 'both' || inputs.target == 'npm'
     runs-on: ubuntu-24.04
     environment: npm
+    permissions: {contents: read, id-token: write}
     env:
-      RELEASE_TAG: ${{ inputs.release_tag }}
+      RELEASE_TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.release_tag }}
+          ref: ${{ github.sha }}
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22.22.2
           registry-url: https://registry.npmjs.org
-      - run: npm install --global npm@11.19.1
-      - run: npm ci
+          cache: npm
+      - run: npm install --global npm@11.19.1 && npm ci && npm test
       - run: |
           set -euo pipefail
-          package_version="$(node -p 'require("./package.json").version')"
-          test "$RELEASE_TAG" = "v$package_version"
-      - run: npm publish --access public --provenance
+          name="$(node -p 'require("./package.json").name')"; version="$(node -p 'require("./package.json").version')"
+          test "$RELEASE_TAG" = "v$version"
+          npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP" > "$RUNNER_TEMP/pack.json"
+          file="$(node -p 'require(process.env.RUNNER_TEMP + "/pack.json")[0].filename')"; local="$(shasum -a 1 "$RUNNER_TEMP/$file" | awk '{print $1}')"
+          remote="$(npm view "$name@$version" dist.shasum 2>/dev/null || true)"
+          if test -z "$remote"; then npm publish "$RUNNER_TEMP/$file" --access public --provenance
+          elif test "$remote" = "$local"; then echo "npm already has these exact package bytes"
+          else echo "npm content mismatch" >&2; exit 1; fi
   pypi:
     needs: verify
-    if: inputs.target == 'both' || inputs.target == 'pypi'
     runs-on: ubuntu-24.04
     environment: pypi
+    permissions: {contents: read, id-token: write}
     env:
-      RELEASE_TAG: ${{ inputs.release_tag }}
-    permissions:
-      id-token: write
+      RELEASE_TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.release_tag }}
+          ref: ${{ github.sha }}
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: '3.12'
-      - run: python -m pip install build
+        with: {python-version: '3.12'}
+      - run: python -m pip install build setuptools
       - run: |
-          set -euo pipefail
-          python_version="$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
-          test "$RELEASE_TAG" = "v$python_version"
-      - run: python -m build python
-      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
-        with:
-          packages-dir: python/dist/
+          test "$RELEASE_TAG" = "v$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
+          python -m build python
+      - id: existing
+        env:
+          DIST_DIR: python/dist
+          PYPI_PACKAGE: return-scenario-engine
+          PYPI_VERSION: ${{ github.ref_name }}
+        run: python tools/pypi_release_state.py
+      - if: steps.existing.outputs.state == 'publish'
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with: {packages-dir: python/dist/, skip-existing: true}
+  release:
+    needs: [npm, pypi]
+    runs-on: ubuntu-24.04
+    permissions: {contents: write}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - run: gh release view "$RELEASE_TAG" >/dev/null 2>&1 || gh release create "$RELEASE_TAG" --verify-tag --generate-notes
