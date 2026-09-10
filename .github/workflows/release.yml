@@ -39,7 +39,7 @@ jobs:
           python_version="$(python -c 'import tomllib; print(tomllib.load(open("python/pyproject.toml", "rb"))["project"]["version"])')"
           test "$RELEASE_TAG" = "v$package_version"
           test "$package_version" = "$python_version"
-          python -m pip install build
+          python -m pip install build setuptools
           npm ci
           PYTHON_BIN=python npm test
           python -m build python
@@ -88,3 +88,5 @@ jobs:
           test "$RELEASE_TAG" = "v$python_version"
       - run: python -m build python
       - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          packages-dir: python/dist/
