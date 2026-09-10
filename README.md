@@ -33,7 +33,7 @@ The visual is actual output from the synthetic `crypto_crypto_long_window` golde
 
 ## Contract and limits
 
-Node.js 20+ and Python 3.11+ are supported. Both `0.1.0` artifacts share the methodology JSON, public SHA-256 hash, and synthetic fixtures. Read [`return-scenario-v1.json`](https://github.com/sidko/return-scenario-engine/blob/main/methodology/return-scenario-v1.json) before comparing outputs. The package does not fetch prices, select assets, retain provider data, or implement routes and UI. A partial paired registry upload must be completed or corrected before announcing the version.
+Node.js 20+ and Python 3.11+ are supported. Both `0.1.0` artifacts share the methodology JSON, public SHA-256 hash, and synthetic fixtures. Read [`return-scenario-v1.json`](https://github.com/sidko/return-scenario-engine/blob/main/methodology/return-scenario-v1.json) before comparing outputs. The package does not fetch prices, select assets, retain provider data, or implement routes and UI. The `0.1.0` npm and PyPI artifacts are immutable.
 
 ## Development
 
@@ -59,7 +59,9 @@ version or treat a mismatched pair as successful.
 
 ## Origin
 
-This package was extracted from [Gale Finance](https://gale.finance/) calculation work. Gale’s launch-bundle formats, UI, routes, analytics, market data, and asset policy stay private. Until migration, it is “extracted from Gale,” not evidence that Gale uses the published artifact.
+Gale Finance uses `return-scenario-engine@0.1.0` for the historical calculations in
+[Compare Lab](https://www.gale.finance/calculator/). Gale’s launch-bundle
+formats, UI, routes, analytics, market data, and asset policy stay private.
 
 Early commits reconstruct private-monorepo milestones. Author dates reflect original work; public content and hashes were rewritten to exclude private details. Some early development used Claude as a coding assistant; Sid Kalla selected, reviewed, and maintains this code.
 
