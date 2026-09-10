@@ -28,6 +28,7 @@ jobs:
       - run: python -m pip install build setuptools
       - run: npm ci
       - run: PYTHON_BIN=python npm test
+      - run: python tools/test_pypi_release_state.py
       - run: |
           PYTHONPATH=python python tools/check_methodology.py
           PYTHONPATH=python python tools/generate_golden.py --check
