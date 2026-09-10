@@ -6,3 +6,7 @@ implementations, compares npm package bytes before upload, and normalizes PyPI
 archives before comparing their contents so archive timestamps do not make a
 retry unsafe. Matching existing files are skipped; different content fails.
 It creates the GitHub Release after both registries succeed.
+
+If a registry or release-completion job fails after a version tag is already
+pushed, do not move that tag. Push `retry/v<version>/<attempt>` from the fixed
+workflow commit. The workflow rebuilds and verifies the immutable primary tag.
