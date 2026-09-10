@@ -43,7 +43,7 @@ jobs:
           node-version: 22.22.2
           registry-url: https://registry.npmjs.org
           cache: npm
-      - run: npm install --global npm@11.19.1 && npm ci && npm test
+      - run: npm install --global npm@11.19.1 && npm ci && npm run build
       - run: |
           set -euo pipefail
           name="$(node -p 'require("./package.json").name')"; version="$(node -p 'require("./package.json").version')"
@@ -51,7 +51,9 @@ jobs:
           npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP" > "$RUNNER_TEMP/pack.json"
           file="$(node -p 'require(process.env.RUNNER_TEMP + "/pack.json")[0].filename')"; local="$(shasum -a 1 "$RUNNER_TEMP/$file" | awk '{print $1}')"
           remote="$(npm view "$name@$version" dist.shasum 2>/dev/null || true)"
-          if test -z "$remote"; then npm publish "$RUNNER_TEMP/$file" --access public --provenance
+          if test -z "$remote"; then
+            if [[ "$version" == *-* ]]; then npm publish "$RUNNER_TEMP/$file" --access public --provenance --tag next
+            else npm publish "$RUNNER_TEMP/$file" --access public --provenance; fi
           elif test "$remote" = "$local"; then echo "npm already has these exact package bytes"
           else echo "npm content mismatch" >&2; exit 1; fi
   pypi:
@@ -80,12 +82,22 @@ jobs:
       - if: steps.existing.outputs.state == 'publish'
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         with: {packages-dir: python/dist/, skip-existing: true}
+      - env:
+          DIST_DIR: python/dist
+          MODE: post
+          PYPI_PACKAGE: return-scenario-engine
+          PYPI_VERSION: ${{ github.ref_name }}
+        run: python tools/pypi_release_state.py
   release:
     needs: [npm, pypi]
     runs-on: ubuntu-24.04
     permissions: {contents: write}
     env:
       GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
       RELEASE_TAG: ${{ github.ref_name }}
     steps:
-      - run: gh release view "$RELEASE_TAG" >/dev/null 2>&1 || gh release create "$RELEASE_TAG" --verify-tag --generate-notes
+      - run: |
+          gh release view "$RELEASE_TAG" >/dev/null 2>&1 && exit 0
+          if [[ "$RELEASE_TAG" == *-* ]]; then gh release create "$RELEASE_TAG" --verify-tag --generate-notes --prerelease
+          else gh release create "$RELEASE_TAG" --verify-tag --generate-notes; fi
